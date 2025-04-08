@@ -48,16 +48,16 @@ process RAGTAG_PATCH {
         ln -s ${query} query.fa
     fi
 
-    tail -F ${prefix}/ragtag.patch.err >&2 &
+    tail -F ${prefix}/ragtag.patch.err | ( tee ${prefix}.stderr.log >&2 )
     tailpid=\$!
     ragtag.py patch target.fa query.fa \\
         -o "${prefix}" \\
         -t ${task.cpus} \\
         ${arg_exclude} \\
         ${arg_skip} \\
-        ${args} # \\
-        # 2> >( tee ${prefix}.stderr.log >&2 ) \\
-        # | tee ${prefix}.stdout.log
+        ${args} \\
+        2> >( tee ${prefix}.stderr.log >&2 ) \\
+        | tee ${prefix}.stdout.log
 
     kill -TERM "\$tailpid"
 
